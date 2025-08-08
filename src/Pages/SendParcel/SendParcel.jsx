@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useLoaderData } from "react-router";
 import toast, { Toaster } from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const SendParcel = () => {
   const { user } = useAuth();
@@ -13,6 +14,8 @@ const SendParcel = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
+
+  const axiosSecure = useAxiosSecure();
 
   const uniqueRegions = [
     ...new Set(serviceCenters.map((center) => center.region)),
@@ -102,6 +105,13 @@ const SendParcel = () => {
               toast.success("Proceeding...");
               toast.dismiss(t.id);
               console.log(parcelData);
+              axiosSecure.post("/parcels", parcelData).then((res) => {
+                console.log(res.data);
+                if (res.data.insertedId) {
+                  // todo: redirect to payment page
+                  toast.success("Processing to the payment gateway!");
+                }
+              });
             }}
           >
             Proceed to payment
