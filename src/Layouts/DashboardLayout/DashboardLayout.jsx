@@ -1,5 +1,7 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router";
+import { MdHome, MdPayment, MdTrackChanges } from "react-icons/md";
+import { FaUserCircle, FaBoxOpen } from "react-icons/fa";
 import Logo from "../../Shared/Logo/Logo";
 
 const DashboardLayout = () => {
@@ -45,10 +47,34 @@ const DashboardLayout = () => {
         <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
           {/* Sidebar content here */}
           <li>
-            <NavLink to={"/"}>Home</NavLink>
+            <NavLink to={"/"}>
+              <MdHome className="inline-block mr-2 text-lg" />
+              Home
+            </NavLink>
           </li>
           <li>
-            <NavLink to={"/dashboard/myParcels"}>My Parcels</NavLink>
+            <NavLink to={"/dashboard/profile"}>
+              <FaUserCircle className="inline-block mr-2 text-lg" />
+              Profile
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to={"/dashboard/myParcels"}>
+              <FaBoxOpen className="inline-block mr-2 text-lg" />
+              My Parcels
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to={"/dashboard/paymentHistory"}>
+              <MdPayment className="inline-block mr-2 text-lg" />
+              Payment History
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to={"/dashboard/track"}>
+              <MdTrackChanges className="inline-block mr-2 text-lg" />
+              Track Parcel
+            </NavLink>
           </li>
         </ul>
       </div>

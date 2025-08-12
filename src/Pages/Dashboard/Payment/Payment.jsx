@@ -7,11 +7,15 @@ import {
 import { loadStripe } from "@stripe/stripe-js";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import useAuth from "../../../hooks/useAuth";
+import toast, { Toaster } from "react-hot-toast";
 const stripePromise = loadStripe(import.meta.env.VITE_payment_key);
 const CheckoutForm = () => {
   const [error, setError] = useState("");
+  const { user } = useAuth();
+  const navigate = useNavigate()
   const stripe = useStripe();
   const elements = useElements();
   const axiosSecure = useAxiosSecure();
@@ -60,29 +64,43 @@ const CheckoutForm = () => {
     } else {
       setError("");
       console.log("[PaymentMethod]", paymentMethod);
-    }
-    const res = await axiosSecure.post("/create-checkout-session", {
-      amountInCents,
-      parcelId,
-    });
-    console.log(res);
-    const clientSecret = res.data.clientSecret;
-    console.log(clientSecret);
+      const res = await axiosSecure.post("/create-checkout-session", {
+        amountInCents,
+        parcelId,
+      });
+      console.log(res);
+      const clientSecret = res.data.clientSecret;
+      console.log(clientSecret);
 
-    const result = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: {
-        card: elements.getElement(CardElement),
-        billing_details: {
-          name: parcel.senderName,
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement),
+          billing_details: {
+            name: user.displayName,
+            email: user.email,
+          },
         },
-      },
-    });
+      });
 
-    if (result.error) {
-      console.log(result.error.message);
-    } else {
-      if (result.paymentIntent.status === "succeeded") {
-        console.log("Payment successful");
+      if (result.error) {
+        setError(result.error.message);
+      } else {
+        setError("");
+        if (result.paymentIntent.status === "succeeded") {
+          const paymentData = {
+            parcelId,
+            email: user?.email,
+            amount: parcel.cost,
+            transactionId: result.paymentIntent.id,
+            paymentMethod: result.paymentIntent.payment_method_types,
+          };
+          const finalResult = await axiosSecure.post("/payment", paymentData);
+          console.log(finalResult);
+          if (finalResult.data.insertedId) {
+            toast.success("Payment successful");
+            navigate("/dashboard/myParcels")
+          }
+        }
       }
     }
   };
@@ -92,6 +110,7 @@ const CheckoutForm = () => {
       onSubmit={handleSubmit}
       className="w-lg mx-auto mt-20 border-2 rounded-xl border-primary p-10 shadow-md hover:shadow-lg"
     >
+      <Toaster></Toaster>
       <CardElement
         options={{
           style: {

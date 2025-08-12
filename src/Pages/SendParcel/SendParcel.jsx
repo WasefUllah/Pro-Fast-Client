@@ -1,12 +1,13 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import toast, { Toaster } from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const SendParcel = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const serviceCenters = useLoaderData();
   const {
     register,
@@ -110,6 +111,7 @@ const SendParcel = () => {
                 if (res.data.insertedId) {
                   // todo: redirect to payment page
                   toast.success("Processing to the payment gateway!");
+                  navigate("/dashboard/myParcels");
                 }
               });
             }}

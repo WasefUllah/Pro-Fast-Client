@@ -103,12 +103,14 @@ const MyParcels = () => {
                   >
                     View
                   </Link>
-                  <Link
+                  {
+                    parcel.paymentStatus != "paid" ? <Link
                     to={`/dashboard/payment/${parcel._id}`}
                     className="btn btn-xs btn-primary  text-black"
                   >
                     Pay
-                  </Link>
+                  </Link>:""
+                  }
                   <button
                     onClick={() => handleDelete(parcel._id)}
                     className="btn btn-xs btn-error text-white"
