@@ -5,12 +5,29 @@ import {
   useStripe,
 } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
-const stripePromise = loadStripe("pk_test_6pRNASCoBOKtIshFeQd4XMUh");
+import { useParams } from "react-router";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+const stripePromise = loadStripe(import.meta.env.VITE_payment_key);
 const CheckoutForm = () => {
   const [error, setError] = useState("");
   const stripe = useStripe();
   const elements = useElements();
+  const axiosSecure = useAxiosSecure();
+  const { parcelId } = useParams();
+  const { data: parcel = {}, isPending } = useQuery({
+    queryKey: ["parcel", parcelId],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/parcels/${parcelId}`);
+      return res.data;
+    },
+  });
+
+  if (isPending) {
+    return <span className="loading loading-spinner loading-lg"></span>;
+  }
+  const amountInCents = parcel.cost * 100;
 
   const handleSubmit = async (event) => {
     // Block native form submission.
@@ -44,6 +61,30 @@ const CheckoutForm = () => {
       setError("");
       console.log("[PaymentMethod]", paymentMethod);
     }
+    const res = await axiosSecure.post("/create-checkout-session", {
+      amountInCents,
+      parcelId,
+    });
+    console.log(res);
+    const clientSecret = res.data.clientSecret;
+    console.log(clientSecret);
+
+    const result = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: elements.getElement(CardElement),
+        billing_details: {
+          name: parcel.senderName,
+        },
+      },
+    });
+
+    if (result.error) {
+      console.log(result.error.message);
+    } else {
+      if (result.paymentIntent.status === "succeeded") {
+        console.log("Payment successful");
+      }
+    }
   };
 
   return (
@@ -73,16 +114,15 @@ const CheckoutForm = () => {
           type="submit"
           disabled={!stripe}
         >
-          Pay
+          Pay ট{parcel.cost}
         </button>
       </div>
-      {
-        error && <p className="text-red-500 text-center mt-2">{error}</p>
-      }
+      {error && <p className="text-red-500 text-center mt-2">{error}</p>}
     </form>
   );
 };
 const Payment = () => {
+  //   console.log(parcelId);
   return (
     <Elements stripe={stripePromise}>
       <CheckoutForm />
