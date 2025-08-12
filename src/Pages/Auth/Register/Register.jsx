@@ -26,7 +26,6 @@ const Register = () => {
         // update user profile in database
         const userInfo = {
           email: data.email,
-          photoURL: profilePic,
           role: "user", // default role
           createdAt: new Date().toISOString(),
           lastLogin: new Date().toISOString(),

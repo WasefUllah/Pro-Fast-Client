@@ -1,17 +1,30 @@
 import React from "react";
 import useAuth from "../../../hooks/useAuth";
 import { useLocation, useNavigate } from "react-router";
+import userAxios from "../../../hooks/userAxios";
+import toast, { Toaster } from "react-hot-toast";
 
 const SocialLogin = () => {
   const navigate = useNavigate();
+  const axiosInstance = userAxios();
   const location = useLocation();
   const from = location.state || "/";
   const { signInWithGoogle } = useAuth();
   const handleGoogleSignIn = () => {
     signInWithGoogle()
-      .then((result) => {
+      .then(async (result) => {
+        const userInfo = {
+          email: result.user.email,
+          role: "user", // default role
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+        };
+
+        const userResponse = await axiosInstance.post("/users", userInfo);
+        if (userResponse.data.insertedId) {
+          toast.success("Welcome! User added successfully.");
+        }
         navigate(from);
-        console.log(result);
       })
       .catch((error) => console.log(error));
   };

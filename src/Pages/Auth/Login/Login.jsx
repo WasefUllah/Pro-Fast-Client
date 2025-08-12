@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router";
 import SocialLogin from "../SocialLogin/SocialLogin";
 import useAuth from "../../../hooks/useAuth";
+import { Toaster } from "react-hot-toast";
 
 const Login = () => {
   const {
@@ -11,7 +12,7 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  const { user, signIn } = useAuth();
+  const { signIn } = useAuth();
   const location = useLocation();
   console.log(location);
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ const Login = () => {
 
   return (
     <div className=" bg-base-100 ">
+      <Toaster></Toaster>
       <h1 className="text-5xl font-bold my-2">Please login!</h1>{" "}
       <div className="card bg-base-100  w-full max-w-sm shrink-0 shadow-2xl">
         <form onSubmit={handleSubmit(onSubmit)} className="card-body">
