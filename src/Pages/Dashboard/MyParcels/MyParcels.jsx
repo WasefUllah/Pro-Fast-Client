@@ -104,7 +104,7 @@ const MyParcels = () => {
                     View
                   </Link>
                   <Link
-                    to={`/payment/${parcel._id}`}
+                    to={`/dashboard/payment/${parcel._id}`}
                     className="btn btn-xs btn-primary  text-black"
                   >
                     Pay
