@@ -71,7 +71,7 @@ const DashboardLayout = () => {
             </NavLink>
           </li>
           <li>
-            <NavLink to={"/dashboard/track"}>
+            <NavLink to={"/dashboard/trackParcels"}>
               <MdTrackChanges className="inline-block mr-2 text-lg" />
               Track Parcel
             </NavLink>
